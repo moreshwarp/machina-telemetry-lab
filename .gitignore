@@ -1,0 +1,23 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exported telemetry experiment files
+machina_telemetry_snapshot_*.json
