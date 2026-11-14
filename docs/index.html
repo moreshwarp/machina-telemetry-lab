@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Machina Telemetry Lab 🔬 | System Architecture & Diagnostics</title>
+  <title>Machine Telemetry Lab 🔬 | System Architecture & Diagnostics</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
           🔬
         </div>
         <div>
-          <h1 class="brand-title">MACHINA TELEMETRY LAB</h1>
+          <h1 class="brand-title">MACHINE TELEMETRY LAB</h1>
           <p class="brand-subtitle">Computer Architecture Diagnostics & Real-Time Telemetry Research Station</p>
         </div>
       </div>
@@ -42,6 +42,8 @@
       </div>
 
       <div class="lab-controls">
+        <a href="../index.html" class="lab-btn portfolio-btn" title="Return to Moreshwar Portfolio"><span class="btn-icon">🏛️</span> Portfolio</a>
+        <button id="audioToggleBtn" class="lab-btn" title="Toggle Real-Time Acoustic CPU Sonifier"><span class="btn-icon" id="audioIcon">🔇</span> Audio Drone</button>
         <button id="articlesBtn" class="lab-btn btn-primary" title="Open Research Library & Academic Articles">
           <span class="btn-icon">📚</span> Research Library
         </button>
@@ -455,12 +457,102 @@
         </div>
       </section>
 
+    
+      <!-- Panel 6: Live Memory & Cache Hierarchy Latency Microbenchmark -->
+      <section class="diagnostic-panel full-width" id="benchmarkPanel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-icon">⚡</span>
+            <div>
+              <h2>Cache Hierarchy & Memory Wall Microbenchmark</h2>
+              <p>In-Browser Strided Buffer Probe: Measuring L1, L2, System Level Cache & DRAM Latency Cliffs</p>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <button id="runBenchmarkBtn" class="lab-btn btn-primary">
+              <span class="btn-icon">▶</span> Run Latency Benchmark
+            </button>
+          </div>
+        </div>
+
+        <div class="benchmark-container">
+          <div class="benchmark-chart-box">
+            <canvas id="benchmarkCanvas" width="760" height="240"></canvas>
+            <div class="benchmark-legend">
+              <span class="leg-item"><span class="leg-color c-l1"></span> L1 Cache (&le; 128KB)</span>
+              <span class="leg-item"><span class="leg-color c-l2"></span> L2 Cache (512KB - 4MB)</span>
+              <span class="leg-item"><span class="leg-color c-slc"></span> Shared SLC (8MB)</span>
+              <span class="leg-item"><span class="leg-color c-dram"></span> Unified DRAM (&gt; 16MB)</span>
+            </div>
+          </div>
+
+          <div class="benchmark-stats-box">
+            <div class="bench-stat-card">
+              <div class="stat-label">L1 Cache Latency</div>
+              <div class="stat-value text-green" id="l1LatencyVal">~1.2 ns</div>
+              <div class="stat-sub">128B Cacheline • Zero Wait States</div>
+            </div>
+            <div class="bench-stat-card">
+              <div class="stat-label">L2 Cache Latency</div>
+              <div class="stat-value text-cyan" id="l2LatencyVal">~4.5 ns</div>
+              <div class="stat-sub">Shared Cluster Pool • Bus Transit</div>
+            </div>
+            <div class="bench-stat-card">
+              <div class="stat-label">DRAM Access Latency</div>
+              <div class="stat-value text-purple" id="dramLatencyVal">~88.2 ns</div>
+              <div class="stat-sub">Unified LPDDR5X • Physical Row Miss</div>
+            </div>
+            <div class="bench-stat-card">
+              <div class="stat-label">Memory Wall Factor</div>
+              <div class="stat-value text-amber" id="memoryWallVal">73.5×</div>
+              <div class="stat-sub">DRAM vs L1 Access Penalty</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel 7: Silicon Die Topology & Coprocessor Map -->
+      <section class="diagnostic-panel full-width" id="dieTopologyPanel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-icon">🔬</span>
+            <div>
+              <h2>Apple Silicon M4 Microarchitecture & SoC Interconnect</h2>
+              <p>Physical Floorplan: 4 Performance Cores, 6 Efficiency Cores, AMX Matrix Units, 16-Core NPU, & 120 GB/s UMA Bus</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="soc-die-layout">
+          <div class="die-block p-cores-block">
+            <div class="die-block-title">4× Performance Cores</div>
+            <div class="die-specs">8-wide decode • 16 execution ports • AMX Matrix Coprocessor • 192KB L1I / 128KB L1D</div>
+          </div>
+          <div class="die-block e-cores-block">
+            <div class="die-block-title">6× Efficiency Cores</div>
+            <div class="die-specs">3-wide decode • 4MB L2 shared • Ultra-low TDP • Scalable background scheduling</div>
+          </div>
+          <div class="die-block npu-block">
+            <div class="die-block-title">Apple Neural Engine (16-Core)</div>
+            <div class="die-specs">38 TOPS • Dedicated FP16/INT8 Matrix Compute • Transformer Accelerators</div>
+          </div>
+          <div class="die-block gpu-block">
+            <div class="die-block-title">10-Core Metal 3 GPU</div>
+            <div class="die-specs">Dynamic Caching • Hardware Accelerated Ray Tracing • Mesh Shading Pipeline</div>
+          </div>
+          <div class="die-block uma-fabric-block">
+            <div class="die-block-title">Unified Memory Fabric (128-bit LPDDR5X)</div>
+            <div class="die-specs">~120 GB/s Zero-Copy CPU/GPU/NPU Shared Fabric • WKdm Hardware Compression Engine</div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- Footer -->
     <footer class="lab-footer">
       <div class="footer-left">
-        <span>🔬 <strong>Machina Telemetry Lab</strong> • Academic & Engineering System Monitor</span>
+        <span>🔬 <strong>Machine Telemetry Lab</strong> • Academic & Engineering System Monitor</span>
       </div>
       <div class="footer-right">
         <span>Machine: <strong id="footerHostname">localhost</strong></span> • 

@@ -1447,3 +1447,141 @@ canvas {
     align-items: flex-start;
   }
 }
+
+/* Benchmarking & Die Visualizer Styles */
+.benchmark-container {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.benchmark-chart-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+#benchmarkCanvas {
+  width: 100%;
+  height: 240px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}
+
+.benchmark-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.benchmark-legend .leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.leg-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.c-l1 { background: #22c55e; }
+.c-l2 { background: #06b6d4; }
+.c-slc { background: #eab308; }
+.c-dram { background: #a855f7; }
+
+.benchmark-stats-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bench-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.bench-stat-card .stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bench-stat-card .stat-value {
+  font-size: 22px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.bench-stat-card .stat-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.soc-die-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 15px;
+}
+
+.die-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  transition: transform .2s ease, border-color .2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.die-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.p-cores-block::before { background: #3b82f6; }
+.e-cores-block::before { background: #10b981; }
+.npu-block::before { background: #8b5cf6; }
+.gpu-block::before { background: #f59e0b; }
+.uma-fabric-block::before { background: #ec4899; }
+
+.die-block:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.die-block-title {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  margin-bottom: 6px;
+  color: var(--text-heading);
+}
+
+.die-specs {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .benchmark-container {
+    grid-template-columns: 1fr;
+  }
+}
