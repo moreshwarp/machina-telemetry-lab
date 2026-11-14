@@ -269,3 +269,252 @@
     }
   }
 }
+
+// --- Hardware Nuance Badges ---
+.badge-nuances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+
+  .nuance-tag {
+    font-size: 10px;
+    font-family: $font-mono;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: $radius-xs;
+    color: $text-muted;
+
+    &.text-green {
+      color: $accent-green;
+      border-color: rgba($accent-green, 0.25);
+    }
+  }
+}
+
+// --- Research Library Modal & Reader ---
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+  @include flex-center;
+  padding: 24px;
+  @include smooth-transition(opacity, 0.25s);
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+  }
+}
+
+.articles-modal-box {
+  width: 100%;
+  max-width: 1200px;
+  height: 88vh;
+  @include glass-card(20px, $bg-surface, $border-accent, $radius-xl);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .modal-header {
+    @include flex-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-subtle;
+    background: $bg-surface-elevated;
+
+    .modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .modal-icon {
+        font-size: 26px;
+      }
+
+      h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: $text-main;
+      }
+
+      p {
+        font-size: 12px;
+        color: $text-muted;
+      }
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid $border-subtle;
+      color: $text-muted;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      @include flex-center;
+      @include smooth-transition;
+
+      &:hover {
+        background: rgba($accent-rose, 0.2);
+        color: $accent-rose;
+        border-color: rgba($accent-rose, 0.4);
+      }
+    }
+  }
+
+  .modal-body-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    flex: 1;
+    overflow: hidden;
+
+    @include respond-to('tablet') {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .articles-sidebar {
+    background: rgba(10, 14, 24, 0.85);
+    border-right: 1px solid $border-subtle;
+    padding: 16px;
+    overflow-y: auto;
+    @include flex-col(8px);
+
+    .article-nav-item {
+      padding: 12px 14px;
+      border-radius: $radius-md;
+      border: 1px solid transparent;
+      cursor: pointer;
+      @include smooth-transition;
+      @include flex-col(4px);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: $border-subtle;
+      }
+
+      &.active {
+        background: rgba($accent-cyan, 0.12);
+        border-color: rgba($accent-cyan, 0.35);
+
+        .nav-title {
+          color: $accent-cyan;
+          font-weight: 600;
+        }
+      }
+
+      .nav-meta {
+        font-size: 10px;
+        font-family: $font-mono;
+        color: $text-dim;
+      }
+
+      .nav-title {
+        font-size: 13px;
+        color: $text-main;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .article-reader-view {
+    padding: 32px 40px;
+    overflow-y: auto;
+    background: $bg-primary;
+    line-height: 1.7;
+    color: #cbd5e1;
+    font-size: 14px;
+
+    .reader-placeholder {
+      height: 100%;
+      @include flex-center;
+      @include flex-col(12px);
+      color: $text-dim;
+      font-size: 15px;
+
+      .placeholder-icon {
+        font-size: 40px;
+      }
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid $border-subtle;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: $accent-cyan;
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: $accent-purple;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    blockquote {
+      background: rgba($accent-purple, 0.1);
+      border-left: 3px solid $accent-purple;
+      padding: 10px 16px;
+      border-radius: $radius-xs;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+
+    pre {
+      background: $bg-surface;
+      border: 1px solid $border-subtle;
+      padding: 16px;
+      border-radius: $radius-md;
+      font-family: $font-mono;
+      font-size: 12px;
+      color: $accent-cyan;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: $font-mono;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #f8fafc;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 16px;
+
+      li {
+        margin-bottom: 6px;
+      }
+    }
+  }
+}

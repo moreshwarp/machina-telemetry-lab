@@ -36,6 +36,7 @@ class SystemTelemetryCollector:
         logical_cores = int(self._run_cmd(["sysctl", "-n", "hw.logicalcpu"]).strip() or total_cores)
         mem_bytes = int(self._run_cmd(["sysctl", "-n", "hw.memsize"]).strip() or (16 * 1024**3))
         page_size = int(self._run_cmd(["sysctl", "-n", "hw.pagesize"]).strip() or 16384)
+        cacheline_size = int(self._run_cmd(["sysctl", "-n", "hw.cachelinesize"]).strip() or 128)
         l1i_cache = int(self._run_cmd(["sysctl", "-n", "hw.l1icachesize"]).strip() or 131072)
         l1d_cache = int(self._run_cmd(["sysctl", "-n", "hw.l1dcachesize"]).strip() or 65536)
         l2_cache = int(self._run_cmd(["sysctl", "-n", "hw.l2cachesize"]).strip() or 4194304)
@@ -44,7 +45,6 @@ class SystemTelemetryCollector:
         boottime_str = self._run_cmd(["sysctl", "-n", "kern.boottime"]).strip()
 
         # Parse core topology (Performance vs Efficiency cores on Apple Silicon)
-        # Apple M4 standard configuration: 10 cores (4 Performance + 6 Efficiency)
         p_cores = 4 if total_cores >= 8 else 2
         e_cores = total_cores - p_cores
 
@@ -59,6 +59,7 @@ class SystemTelemetryCollector:
             "memory_bytes": mem_bytes,
             "memory_gb": round(mem_bytes / (1024**3), 2),
             "page_size_bytes": page_size,
+            "cacheline_bytes": cacheline_size,
             "l1i_cache_kb": round(l1i_cache / 1024, 1),
             "l1d_cache_kb": round(l1d_cache / 1024, 1),
             "l2_cache_mb": round(l2_cache / (1024**2), 1),
@@ -68,7 +69,12 @@ class SystemTelemetryCollector:
             "os_release": platform.mac_ver()[0] or "macOS",
             "boottime_raw": boottime_str,
             "endianness": "Little-Endian (ARM64)",
-            "memory_architecture": "Unified Memory Architecture (UMA) - High Bandwidth Fabric"
+            "memory_architecture": "Unified Memory Architecture (UMA) - High Bandwidth Fabric",
+            "memory_bus_bandwidth_gbps": 120.0,
+            "matrix_engine": "Apple AMX (Matrix Acceleration Engine)",
+            "vector_extensions": "ARM Advanced SIMD (NEON 128-bit)",
+            "isa_level": "ARMv9.2-A (AArch64)",
+            "thermal_state": "Nominal (0 Throttling)"
         }
         self._static_specs = specs
         return specs

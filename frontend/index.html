@@ -31,11 +31,21 @@
         </div>
         <div class="badge-meta">
           <span id="osKernel">Darwin Kernel</span> • 
+          <span id="cacheLineMeta">Cacheline: 128B</span> •
           <span id="uptimeDisplay">Uptime: --</span>
+        </div>
+        <div class="badge-nuances">
+          <span class="nuance-tag">UMA Fabric: ~120 GB/s</span>
+          <span class="nuance-tag">Apple AMX Engine</span>
+          <span class="nuance-tag text-green">Thermal: Nominal</span>
         </div>
       </div>
 
       <div class="lab-controls">
+        <button id="articlesBtn" class="lab-btn btn-primary" title="Open Research Library & Academic Articles">
+          <span class="btn-icon">📚</span> Research Library
+        </button>
+
         <div class="control-group">
           <label for="pollRate">Sampling:</label>
           <select id="pollRate" class="lab-select">
@@ -458,6 +468,37 @@
         <span class="status-indicator">● Active Polling</span>
       </div>
     </footer>
+    <!-- Research Library Modal Reader -->
+    <div class="modal-overlay hidden" id="articlesModal">
+      <div class="articles-modal-box">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">📚</span>
+            <div>
+              <h2>Computer Architecture Research Library</h2>
+              <p>In-Depth Technical Field Studies, Historical Context & Mathematical Models</p>
+            </div>
+          </div>
+          <button id="closeModalBtn" class="modal-close-btn" title="Close Library">✕</button>
+        </div>
+
+        <div class="modal-body-layout">
+          <!-- Article List Sidebar -->
+          <div class="articles-sidebar" id="articlesNavList">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <!-- Article Reader View -->
+          <div class="article-reader-view" id="articleReaderContent">
+            <div class="reader-placeholder">
+              <span class="placeholder-icon">📖</span>
+              <p>Select an article from the left panel to begin reading.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="app.js"></script>

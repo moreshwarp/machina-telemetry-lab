@@ -19,12 +19,32 @@ import webbrowser
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(CURRENT_DIR)
 FRONTEND_DIR = os.path.join(PROJECT_DIR, "frontend")
+ARTICLES_DIR = os.path.join(PROJECT_DIR, "articles")
 
 sys.path.insert(0, CURRENT_DIR)
 from collector import SystemTelemetryCollector
 from theory import RESEARCHER_THEORY
 
 collector = SystemTelemetryCollector()
+
+def get_articles_data():
+    """Reads all markdown articles and returns structured JSON."""
+    articles = []
+    if os.path.exists(ARTICLES_DIR):
+        for fname in sorted(os.listdir(ARTICLES_DIR)):
+            if fname.endswith(".md"):
+                fpath = os.path.join(ARTICLES_DIR, fname)
+                with open(fpath, "r", encoding="utf-8") as f:
+                    content = f.read()
+                # Parse title from first line
+                first_line = content.split("\n")[0].replace("#", "").strip()
+                articles.append({
+                    "id": fname.replace(".md", ""),
+                    "filename": fname,
+                    "title": first_line,
+                    "content": content
+                })
+    return articles
 
 class TelemetryRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Handles REST API queries and serves frontend laboratory assets."""
@@ -42,6 +62,8 @@ class TelemetryRequestHandler(http.server.SimpleHTTPRequestHandler):
             self._send_json(collector.get_full_telemetry())
         elif clean_path == "/api/theory":
             self._send_json(RESEARCHER_THEORY)
+        elif clean_path == "/api/articles":
+            self._send_json(get_articles_data())
         elif clean_path == "/api/snapshot":
             snapshot = {
                 "experiment": "Machina System Telemetry Lab",

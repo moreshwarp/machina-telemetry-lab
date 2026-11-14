@@ -19,6 +19,265 @@
 
   let staticSpecs = null;
   let theoryData = null;
+  let articlesData = [];
+
+  // Fallback research articles for static GitHub Pages hosting
+  const STATIC_ARTICLES = [
+    {
+      id: "01_the_memory_wall_and_unified_memory",
+      title: "Breaking the Memory Wall: How Unified Memory Architecture (UMA) Reshaped Modern Computing 🏛️⚡",
+      category: "Memory & Bus Architecture",
+      readTime: "5 min read",
+      content: `# Breaking the Memory Wall: How Unified Memory Architecture (UMA) Reshaped Modern Computing 🏛️⚡
+
+> **Author**: Machina Telemetry Research Group  
+> **Topic**: Computer Architecture, Memory Subsystems, Bus Topologies  
+> **Keywords**: Von Neumann Architecture, Memory Wall, UMA, Cache Coherency, PCIe Bottleneck  
+
+---
+
+## 1. The Historical Dilemma: The Von Neumann Memory Wall
+
+Since John von Neumann published the *First Draft of a Report on the EDVAC* in 1945, general-purpose computers have separated arithmetic execution (the CPU) from stored program memory (RAM).
+
+Between 1980 and 2005, CPU processing speeds surged by roughly **55% per year**, while DRAM latency improved by a mere **7% per year**. This divergence produced what researchers Wulf and McKee (1995) famously christened the **"Memory Wall"**:
+
+> **Latency Gap** = CPU Cycle Time / Memory Access Latency
+
+As CPU cycle times dropped beneath 0.3 ns (frequencies exceeding 3.5 GHz), accessing main memory at 60–100 ns required a processor to wait for **hundreds of clock cycles** doing nothing—a state known as a *memory stall*.
+
+---
+
+## 2. The Traditional Multi-Bus Failure Mode: Discrete GPU vs CPU
+
+In traditional PC and workstation architectures, the CPU and Discrete GPU (dGPU) reside on separate memory islands:
+
+\`\`\`
+[ CPU ] <---> [ DDR5 System RAM (e.g. 32 GB @ 50 GB/s) ]
+   |
+[ PCIe 4.0 / 5.0 Bus (Limit: 16–32 GB/s) ]
+   |
+[ GPU ] <---> [ GDDR6 Video RAM (e.g. 16 GB @ 500 GB/s) ]
+\`\`\`
+
+When an artificial intelligence model, image processing pipeline, or physics simulation executes:
+1. The CPU loads data into system RAM.
+2. The data must be explicitly serialized and copied across the narrow **PCIe bus**.
+3. The GPU processes the data in VRAM.
+4. The output must be copied back across PCIe into CPU memory.
+
+This ping-pong memory copying consumes upwards of **40% of execution time** and wastes massive electrical power.
+
+---
+
+## 3. The Unified Memory Paradigm on Apple Silicon
+
+Apple Silicon chips (from M1 through M4) depart radically from discrete bus topologies by adopting **Unified Memory Architecture (UMA)**.
+
+Instead of physically isolated memory pools connected by a narrow external bus, the CPU cores, GPU execution units, Neural Engine (NPU), and Image Signal Processor (ISP) all connect directly to a single, wide, high-bandwidth unified memory fabric:
+
+\`\`\`
+               +--------------------------------------+
+               |    Ultra-Wide On-Die Memory Fabric   |
+               |        (Up to 120+ GB/s on M4)       |
+               +--------------------------------------+
+                 /         |               |        \\
+       [ 10 CPU Cores ] [ GPU Cores ] [ Neural Engine ] [ Secure Enclave ]
+                 \\         |               |        /
+               +--------------------------------------+
+               |   Unified LPDDR5X-7500 Memory Pool   |
+               |        (16 GB Low-Latency DRAM)      |
+               +--------------------------------------+
+\`\`\`
+
+### Key Architectural Advantages:
+* **Zero-Copy Data Transfer**: The CPU can write a matrix into memory, and the GPU or Neural Engine can read and compute on it immediately by sharing the same physical pointer—eliminating bus copies entirely.
+* **Massive Bandwidth for AI**: Large Language Models (LLMs) and neural networks run constrained by memory bandwidth rather than raw compute. With unified bandwidth exceeding 120 GB/s directly accessible to the GPU, Apple Silicon runs models that would traditionally require an expensive workstation dGPU.
+* **128-Byte Cache Lines**: Unlike x86 which typically utilizes 64-byte cache lines, Apple Silicon uses **128-byte cache lines**, halving tag lookup overhead and maximizing sequential throughput.
+
+---
+
+## 4. Key Takeaways for Systems Researchers
+
+1. **Memory bandwidth is the real bottleneck** in modern computing. Peak FLOPS mean nothing if the ALUs are starved for operands.
+2. Unified Memory replaces coarse hardware-copy protocols with high-speed coherent cache fabrics.
+3. Algorithm design must maximize **cache locality** (spatial and temporal) to keep execution inside the 1 ns L1 and 3.5 ns L2 caches.`
+    },
+    {
+      id: "02_anatomy_of_apple_m4_microarchitecture",
+      title: "Anatomy of Apple M4: Asymmetric Multiprocessing & 8-Wide Pipelines ⚡🔬",
+      category: "Processor Micro-Architecture",
+      readTime: "6 min read",
+      content: `# Anatomy of Apple M4: Asymmetric Multiprocessing, 8-Wide Pipelines & Heterogeneous Scheduling ⚡🔬
+
+> **Author**: Machina Telemetry Research Group  
+> **Topic**: Micro-Architecture, Instruction Pipelines, Heterogeneous Computing  
+> **Keywords**: Apple M4, Asymmetric Multiprocessing (HMP), P-Cores, E-Cores, Out-of-Order Execution, Branch Prediction  
+
+---
+
+## 1. Introduction: Breaking the Symmetric Fallacy
+
+For two decades, mainstream processor design adhered to symmetric multiprocessing (SMP): identical processor cores running at identical clock frequencies. While conceptually simple, SMP suffers from tremendous energetic inefficiency:
+* An idle background task running on a high-power performance core burns unnecessary watts.
+* Conversely, forcing a heavy compiler job or video render to split across weak low-power cores causes significant throughput degradation.
+
+The Apple M4 processor implements **Heterogeneous Multi-Processing (HMP)**, combining **4 High-Performance Cores (P-cores)** and **6 High-Efficiency Cores (E-cores)** on a 3nm process node.
+
+---
+
+## 2. The Performance Core: Anatomy of a Super-Wide Decoder
+
+The P-core on the Apple M4 represents one of the widest superscalar out-of-order execution engines ever mass-produced:
+
+\`\`\`
+[ Instruction Fetch (32 Bytes/Cycle) ]
+                  |
+[ 8-Wide Instruction Decoder ] ---> Decodes up to 8 instructions every cycle
+                  |
+[ Massive Reorder Buffer (ROB ~600+ Entries) ] ---> Extracts instruction-level parallelism
+                  |
++--------------------------------------------------------------+
+| Execution Ports:                                             |
+| • 6x Integer ALUs (Arithmetic / Logic)                       |
+| • 2x Branch Execution Units                                  |
+| • 4x 128-bit NEON Floating Point / SIMD Units                |
+| • 2x Load / Store Units                                      |
+| • 1x Apple Matrix Coprocessor (AMX Tensor Unit)              |
++--------------------------------------------------------------+
+\`\`\`
+
+### Microarchitectural Nuances:
+* **8-Wide Decode Pipeline**: Traditional x86 cores historically used 4 to 6-wide instruction decoders because variable-length x86 instructions are notoriously difficult to parallel-decode. Because ARMv9 uses fixed 32-bit instructions, Apple could widen the decode front-end to 8 instructions per cycle without massive silicon area penalties.
+* **Giant Reorder Buffer (ROB)**: With over 600 in-flight instruction slots, the core can look hundreds of instructions ahead in the program stream, executing memory loads far before they are strictly needed.
+* **128 KB Instruction Cache + 64 KB Data Cache**: Compared to standard desktop chips which offer 32 KB or 48 KB L1 caches, the M4 provides a massive 128 KB L1 instruction cache per P-core, virtually eliminating instruction cache misses in large binary loops.
+
+---
+
+## 3. The Efficiency Core: Maximizing Energy Density
+
+The 6 Efficiency cores (E-cores) are engineered with an entirely different design goal: **maximum instructions per watt**:
+
+* **Narrow Pipeline**: 4-wide decode front-end running at lower clock speeds (~2.0–2.5 GHz).
+* **Ultra-Low Leakage**: Consumes approximately 1/10th of the electrical power of a P-core.
+* **Cluster Shared Cache**: Shares a compact, ultra-dense L2 cache cluster.
+
+When your Mac is idling or handling background cron tasks, all P-cores clock down. The E-cores handle nearly 80% of routine user-facing operations silently with zero fan noise.`
+    },
+    {
+      id: "03_the_mathematics_of_mach_virtual_memory",
+      title: "The Mathematics of Mach Virtual Memory: Page Replacement & In-RAM Compression 🧠📊",
+      category: "Operating Systems & Kernel Theory",
+      readTime: "5 min read",
+      content: `# The Mathematics of Mach Virtual Memory: Page Replacement & In-RAM Compression 🧠📊
+
+> **Author**: Machina Telemetry Research Group  
+> **Topic**: Operating Systems, Virtual Memory, Paging, In-Memory Compression  
+> **Keywords**: Mach Kernel, Virtual Memory, Active vs Inactive Pages, Memory Pressure, WKdm Compression, SSD Wear Leveling  
+
+---
+
+## 1. The Myth of "Free RAM"
+
+A pervasive misconception among computer users is that "good" performance requires hundreds of megabytes or gigabytes of **Free RAM**.
+
+From a systems engineering standpoint, **Free RAM is wasted silicon and wasted energy**. Unused memory draws electricity just sitting idle. A modern operating system treats memory as a dynamic cache for the filesystem and active applications.
+
+In macOS (which runs on the Mach 3.0 virtual memory subsystem), memory is structured not as a binary "used vs free" state, but as a multi-stage state machine:
+
+\`\`\`
+Free Pages ---> Active Pages (App Demand) ---> Inactive Pages (Cache)
+                     |                                |
+             Wired Pages (Kernel)           In-RAM Compressed Pages
+                                                      |
+                                            Physical SSD Swapout
+\`\`\`
+
+---
+
+## 2. Mathematical Decomposition of Mach Page States
+
+On macOS, memory pages have a native geometry of **16,384 bytes (16 KB)**, four times larger than the classic x86 4 KB page size. This reduces the size of the page table by 75% and drastically improves the hit rate of the hardware **Translation Lookaside Buffer (TLB)**.
+
+The total physical memory M_total is decomposed into:
+
+> **M_total = M_wired + M_active + M_inactive + M_compressed + M_free**
+
+* **Wired (Kernel Lock)**: Memory strictly locked into physical RAM. It contains kernel data structures, page tables, and hardware buffers that must never be paged out.
+* **Active (App Memory)**: Memory pages currently referenced and touched by running user-space processes.
+* **Inactive (File Cache)**: Pages that were recently used but are no longer actively referenced. Crucially, **inactive memory acts as an ultra-high-speed disk cache**.
+* **Compressed in RAM**: Dormant memory compressed in-place inside RAM using hardware-accelerated algorithms.
+* **Free**: Truly unallocated physical page frames available for immediate zero-filling.
+
+---
+
+## 3. The Mathematics of In-Memory Compression
+
+When applications request additional memory, Apple's Mach VM implements a sophisticated **In-Memory Compressor** (based on a variant of the WKdm algorithm) that achieves a typical compression ratio of:
+
+> **Compression Ratio ≈ 2.5 : 1 to 4.0 : 1**
+
+Instead of wearing out SSD flash memory with write amplification and incurring huge disk latency penalties (25,000+ ns), macOS compresses idle pages in RAM at speeds exceeding **30 GB/s** in just 100–200 ns (250x faster than SSD swap!).`
+    },
+    {
+      id: "04_queueing_theory_and_load_averages",
+      title: "Queueing Theory, Little's Law, and Demystifying Unix Load Averages 🚦📈",
+      category: "Queueing Theory & System Metrics",
+      readTime: "4 min read",
+      content: `# Queueing Theory, Little's Law, and Demystifying Unix Load Averages 🚦📈
+
+> **Author**: Machina Telemetry Research Group  
+> **Topic**: Queueing Theory, Operating System Schedulers, Performance Modeling  
+> **Keywords**: Load Average, Little's Law, Exponential Smoothing, Run Queue, M/M/c Queue, CPU Saturation  
+
+---
+
+## 1. What Exactly is a "Load Average"?
+
+Almost every Unix, Linux, and macOS system displays three numbers in terminal telemetry:
+\`\`\`
+load averages: 3.25 2.80 2.45
+\`\`\`
+
+A Unix load average is **not** a CPU percentage. It is a measurement of the **average length of the operating system's execution run-queue**:
+
+> **Load = Average Number of Threads Running + Threads Waiting in the Run Queue**
+
+On modern kernels, this also includes threads placed in uninterruptible sleep states while waiting on disk I/O operations or hardware page faults.
+
+---
+
+## 2. The Multi-Server Queue Model (M/M/c)
+
+In classical queueing theory (Kendall's Notation), an N-core computer behaves as an **M/M/c multi-server queueing system**, where:
+* **c**: Number of parallel service channels (physical CPU cores, e.g. c = 10 on Apple M4).
+* **λ**: Arrival rate of process tasks.
+* **μ**: Service rate per core.
+
+### The Three Operational Regimes:
+1. **Under-capacity (Load < c)**:
+   Load = 3.25, c = 10 -> 3.25 cores occupied, 6.75 cores idle. Arriving processes begin execution immediately with **zero queue wait time**!
+2. **Exact Saturation (Load = c)**:
+   Every single core is busy. No threads are waiting in line, but any new arrival will be delayed.
+3. **Queue Congestion (Load > c)**:
+   Load = 14.50, c = 10 -> 10 cores busy, 4.50 threads waiting in line! Processes experience scheduling latency and jitter.
+
+---
+
+## 3. Little's Law and Mathematical Formulation
+
+One of the fundamental theorems of queueing theory is **Little's Law** (John Little, 1961):
+
+> **L = λ · W**
+
+Where:
+* **L**: Average number of tasks in the system (the Load Average).
+* **λ**: Task arrival rate per second.
+* **W**: Average total response time spent by a task in the system (Queue Wait Time + Execution Time).
+
+If the load L doubles while arrival rate λ is constant, average response time W must double!`
+    }
+  ];
 
   // Fallback theory for static GitHub Pages hosting
   const STATIC_THEORY = {
@@ -152,8 +411,91 @@
     resizeAllCanvases();
     await loadStaticSpecs();
     await loadTheory();
+    await loadArticles();
     setupControls();
     scheduleNextFetch(true);
+  }
+
+  async function loadArticles() {
+    try {
+      const res = await fetch(`${backendBaseUrl}/api/articles`);
+      if (!res.ok) throw new Error('API not available');
+      articlesData = await res.json();
+      if (!articlesData || articlesData.length === 0) {
+        articlesData = STATIC_ARTICLES;
+      }
+    } catch (err) {
+      articlesData = STATIC_ARTICLES;
+    }
+    buildArticlesNav();
+  }
+
+  function buildArticlesNav() {
+    const navListEl = document.getElementById('articlesNavList');
+    if (!navListEl) return;
+    navListEl.innerHTML = '';
+
+    articlesData.forEach((art, index) => {
+      const item = document.createElement('div');
+      item.className = `article-nav-item ${index === 0 ? 'active' : ''}`;
+      item.dataset.articleId = art.id;
+
+      item.innerHTML = `
+        <div class="nav-meta">STUDY #0${index + 1}</div>
+        <div class="nav-title">${art.title.replace(/^[#\s]+/, '')}</div>
+      `;
+
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.article-nav-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        renderArticle(art);
+      });
+
+      navListEl.appendChild(item);
+    });
+
+    if (articlesData.length > 0) {
+      renderArticle(articlesData[0]);
+    }
+  }
+
+  function renderArticle(art) {
+    const readerEl = document.getElementById('articleReaderContent');
+    if (!readerEl) return;
+    readerEl.innerHTML = renderMarkdown(art.content);
+  }
+
+  // Lightweight resilient markdown parser
+  function renderMarkdown(md) {
+    if (!md) return '';
+    let html = md
+      // Escape HTML entities inside regular text (except markdown formatting)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      // Headers
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      // Blockquotes
+      .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+      // Code blocks
+      .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+      // Inline code
+      .replace(/`([^`]+)`/gim, '<code>$1</code>')
+      // Bold & Italic
+      .replace(/\*\*([^*]+)\*\*/gim, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/gim, '<em>$1</em>')
+      // Horizontal rules
+      .replace(/^---$/gim, '<hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 20px 0;">')
+      // Bullet lists
+      .replace(/^\• (.*$)/gim, '<li>$1</li>')
+      .replace(/^\* (.*$)/gim, '<li>$1</li>')
+      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      // Paragraphs
+      .replace(/\n\n+/g, '</p><p>');
+
+    return `<p>${html}</p>`.replace(/<p><\/p>/g, '');
   }
 
   async function loadStaticSpecs() {
@@ -757,6 +1099,31 @@
         }
       });
     });
+
+    // Research Articles Modal Open / Close
+    const articlesBtn = document.getElementById('articlesBtn');
+    const articlesModal = document.getElementById('articlesModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    if (articlesBtn && articlesModal) {
+      articlesBtn.addEventListener('click', () => {
+        articlesModal.classList.remove('hidden');
+      });
+    }
+
+    if (closeModalBtn && articlesModal) {
+      closeModalBtn.addEventListener('click', () => {
+        articlesModal.classList.add('hidden');
+      });
+    }
+
+    if (articlesModal) {
+      articlesModal.addEventListener('click', (e) => {
+        if (e.target === articlesModal) {
+          articlesModal.classList.add('hidden');
+        }
+      });
+    }
   }
 
   // Run upon DOM load
