@@ -128,19 +128,35 @@ The built-in web server exposes clean JSON endpoints for integration or programm
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Structure & SCSS Architecture
 
 ```
 system_telemetry_lab/
 ├── README.md              # Project documentation & architectural guide
+├── package.json           # SCSS build scripts & tooling configuration
 ├── run.sh                 # One-click launcher script
 ├── cli_dashboard.py       # Terminal ANSI color visualizer
 ├── backend/
 │   ├── collector.py       # High-precision system telemetry extractor
 │   ├── theory.py          # Academic models & researcher notes library
 │   └── server.py          # Lightweight HTTP server & JSON REST API
-└── frontend/
-    ├── index.html         # Scientific dashboard interface
-    ├── style.css          # Glassmorphic cyber-lab styling
-    └── app.js             # 60fps Canvas charting engine & telemetry client
+├── frontend/
+│   ├── index.html         # Scientific dashboard interface
+│   ├── style.css          # Compiled production stylesheet
+│   ├── app.js             # 60fps Canvas charting engine & telemetry client
+│   └── scss/              # 🎨 Modular SCSS Architecture (High Reusability)
+│       ├── main.scss      # Master stylesheet entrypoint
+│       ├── _variables.scss# Design tokens: palette, typography, spacing, breakpoints
+│       ├── _mixins.scss   # Reusable mixins: glass-card, flexbox, badges, transitions
+│       ├── _components.scss# Reusable UI components: meters, buttons, core cards, pyramid
+│       └── _layout.scss   # 12-column responsive grid, header, panels, footer
+└── docs/                  # GitHub Pages distribution (with identical scss/ and assets)
 ```
+
+### 🎨 Reusable SCSS System
+
+The styling is refactored into a **modular, tokenized SCSS design system**:
+* **`_variables.scss`**: Centralized design tokens for colors (deep obsidian, neon cyan, emerald, purple, amber), typography, border radiuses, and responsive breakpoints.
+* **`_mixins.scss`**: Reusable mixins including `@mixin glass-card()`, `@mixin flex-between`, `@mixin hover-elevation()`, `@mixin badge()`, and `@mixin respond-to()`.
+* **`_components.scss`**: Decoupled, reusable components (KPI cards, meter bars, core diagnostics chips, latency pyramid tiers, and expandable researcher cards).
+* **`_layout.scss`**: Responsive 12-column grid and flex layouts.

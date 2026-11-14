@@ -1,0 +1,23 @@
+{
+  "name": "machina-telemetry-lab",
+  "version": "1.0.0",
+  "description": "Scientific Computer Architecture Telemetry Station - SCSS Workflow",
+  "main": "backend/server.py",
+  "scripts": {
+    "build:css": "sass frontend/scss/main.scss:frontend/style.css frontend/scss/main.scss:docs/style.css --style compressed",
+    "watch:css": "sass --watch frontend/scss/main.scss:frontend/style.css frontend/scss/main.scss:docs/style.css",
+    "start": "./run.sh"
+  },
+  "keywords": [
+    "telemetry",
+    "apple-silicon",
+    "computer-architecture",
+    "scss",
+    "dashboard"
+  ],
+  "author": "Moreshwar Pidadi",
+  "license": "MIT",
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}
