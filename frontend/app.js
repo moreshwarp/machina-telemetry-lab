@@ -389,19 +389,33 @@ If the load L doubles while arrival rate λ is constant, average response time W
   const memCtx = memCanvas ? memCanvas.getContext('2d') : null;
 
   // --- High DPI Canvas Initialization ---
-  function setupHiDPI(canvas, ctx) {
+  function setupHiDPI(canvas, ctx, fixedHeight) {
     if (!canvas || !ctx) return;
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    const parent = canvas.parentElement;
+    const parentWidth = parent ? parent.clientWidth : (window.innerWidth < 640 ? window.innerWidth - 48 : 300);
+    const w = Math.max(120, parentWidth);
+    const h = fixedHeight || (window.innerWidth < 640 ? 170 : 220);
+
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+
+    if (ctx.resetTransform) {
+      ctx.resetTransform();
+    } else {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     ctx.scale(dpr, dpr);
   }
 
   function resizeAllCanvases() {
-    setupHiDPI(cpuCanvas, cpuCtx);
-    setupHiDPI(netCanvas, netCtx);
-    setupHiDPI(memCanvas, memCtx);
+    setupHiDPI(cpuCanvas, cpuCtx, window.innerWidth < 640 ? 170 : 220);
+    setupHiDPI(netCanvas, netCtx, window.innerWidth < 640 ? 130 : 150);
+    setupHiDPI(memCanvas, memCtx, window.innerWidth < 640 ? 160 : 180);
+    if (cpuHistory.length > 0) renderCpuWaveform();
+    if (netHistory.length > 0) renderNetworkWaveform();
   }
 
   window.addEventListener('resize', resizeAllCanvases);
