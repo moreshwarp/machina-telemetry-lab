@@ -24,6 +24,7 @@ ARTICLES_DIR = os.path.join(PROJECT_DIR, "articles")
 sys.path.insert(0, CURRENT_DIR)
 from collector import SystemTelemetryCollector
 from theory import RESEARCHER_THEORY
+from db import db
 
 collector = SystemTelemetryCollector()
 
@@ -59,7 +60,28 @@ class TelemetryRequestHandler(http.server.SimpleHTTPRequestHandler):
         if clean_path == "/api/specs":
             self._send_json(collector.get_static_specs())
         elif clean_path == "/api/telemetry":
-            self._send_json(collector.get_full_telemetry())
+            sample = collector.get_full_telemetry()
+            try:
+                db.insert_sample(sample)
+            except Exception as e:
+                print(f"[DB Warning] Could not record sample: {e}", file=sys.stderr)
+            self._send_json(sample)
+        elif clean_path == "/api/history":
+            limit = 60
+            if "?" in self.path:
+                try:
+                    query = self.path.split("?")[1]
+                    for param in query.split("&"):
+                        if param.startswith("limit="):
+                            limit = int(param.split("=")[1])
+                except Exception:
+                    pass
+            self._send_json({
+                "engine": "SQLite3 Time-Series DB",
+                "samples": db.get_recent_samples(limit)
+            })
+        elif clean_path == "/api/db/stats":
+            self._send_json(db.get_db_stats())
         elif clean_path == "/api/theory":
             self._send_json(RESEARCHER_THEORY)
         elif clean_path == "/api/articles":
